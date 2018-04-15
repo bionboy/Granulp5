@@ -13,9 +13,7 @@ var delFeedback, delFeedbackPrev, delFeedbackSlider;
 
 function setup() {
 	var canvas = createCanvas(windowWidth, windowHeight);
-	// var canvas = createCanvas(600, 300);
 	canvas.parent('dropZone');
-	// canvas.filter("BLUR");
 
 	// File Upload
 	fileDrop = select('#dropZone');
@@ -32,29 +30,28 @@ function setup() {
 		routeSound();
 	});
 
-	
 	// Buttons
 	playButton = createButton("play");
 	playButton.mousePressed(buttonHandler);
 	playButton.position(190, 10);
 	killButton = createButton("Stop");
-	killButton.mousePressed(killSound);
+	killButton.mousePressed(function () { sample.stop(); });
 	killButton.position(190, 38);
-	
+
 	// Sliders
 	lengthSlider = createSlider(0, 5, 1, 0);
-	lengthSlider.position(50,5);
+	lengthSlider.position(50, 5);
 	rateSlider = createSlider(0.25, 2, 1, 0);
 	rateSlider.position(50, 25);
 	ampSlider = createSlider(0, 2, 0.5, 0);
 	ampSlider.position(235, 5);
-	
+
 	reverbDryWetSlider = createSlider(0, 1, 0, 0);
 	reverbDryWetSlider.position(235, 25);
-	
+
 	lpCutoffSlider = createSlider(30, 10000, 10000, 0);
 	lpCutoffSlider.position(235, 45);
-	
+
 	delDryWetSlider = createSlider(0, 1, 0, 0);
 	delDryWetSlider.position(375, 5);
 	delTimeSlider = createSlider(0.1, 10, 1, 0);
@@ -64,7 +61,7 @@ function setup() {
 
 	// Effects, Filters, FFT
 	fft = new p5.FFT();
-	
+
 	reverb = new p5.Reverb();
 
 	delay = new p5.Delay();
@@ -73,19 +70,12 @@ function setup() {
 	lpFilter = new p5.LowPass();
 	lpFilter.freq(20000);
 	lpFilter.res(0);
-	
-	// sample loading
-	sample = loadSound("/Granulp5/samples/carriedAway.wav",
+
+	sample = loadSound("samples/carriedAway.wav",
 		sampleLoaded,
 		() => { background(color(255, 255, 255)); },
-		() => { background(color(0, 0, 0));});
-	// sample = loadSound("/p5_projects/Granulp5/samples/carriedAway.wav",
-	// 	sampleLoaded,
-	// 	() => { background(color(255, 255, 255)); },
-	// 	() => { background(color(0, 0, 0)); });
+		() => { background(color(0, 0, 0)); });
 
-
-	// Sound Routing
 	routeSound();
 }
 
@@ -104,19 +94,9 @@ function sampleLoaded() {
 	startSlider.position(50, 45);
 }
 
-
 function buttonHandler() {
 	background(color(random(255), random(255), random(255)));
-
 	sample.jump(grainStart);
-}
-
-function killSound() {
-	sample.stop();
-}
-
-function sampleLoop() {
-	// startGrain();
 }
 
 function draw() {
@@ -170,7 +150,7 @@ function updateEffects() {
 	}
 	reverbDryWetPrev = reverbDryWet;
 
-	if(delDryWet != delDryWetPrev){
+	if (delDryWet != delDryWetPrev) {
 		delay.drywet(delDryWet);
 	}
 	delDryWetPrev = delDryWet;
@@ -197,11 +177,6 @@ function sampleLooping() {
 	}
 	grainStartPrev = grainStart;
 
-	if (grainStart != grainStartPrev || grainLength != grainLengthPrev) {
-		sample.clearCues();
-		sample.addCue(grainStart + grainLength, sampleLoop);
-	}
-
 	if (sample.currentTime() > grainStart + grainLength) {
 		startGrain();
 	}
@@ -213,7 +188,7 @@ function startGrain() {
 	shapeSize = random(100, 200);
 	angle = random(360);
 
-	stroke(0,0,0);
+	stroke(0, 0, 0);
 	fill(random(255), random(255), random(255));
 
 	translate(x, y);
@@ -228,15 +203,15 @@ function startGrain() {
 			break;
 		case 2:
 			triangle(0, 0,
-				     0 + random(-shapeSize, shapeSize), 0 + random(-shapeSize, shapeSize),
-				     0 + random(-shapeSize, shapeSize), 0 + random(-shapeSize, shapeSize));
+				0 + random(-shapeSize, shapeSize), 0 + random(-shapeSize, shapeSize),
+				0 + random(-shapeSize, shapeSize), 0 + random(-shapeSize, shapeSize));
 			break;
 		default:
 			break;
 	}
 	rotate(-angle);
-	translate(-x, -y);	
-	
+	translate(-x, -y);
+
 	background(random(255), random(255), random(255), 100);
 
 	sample.jump(grainStart);
