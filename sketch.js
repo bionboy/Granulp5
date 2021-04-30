@@ -19,14 +19,12 @@ function setup() {
 	fileDrop = select('#dropZone');
 	fileDrop.dragOver(() => {
 		fileDrop.style("background-color", "#ccc");
-		console.log("fileDrag");
 	});
 	fileDrop.drop((file) => {
 		background(color(255, 0, 0));
-		console.log("File Loaded...");
-
 		sample.stop();
 		sample = loadSound(file, sampleLoaded);
+		console.log("File Loaded...");
 		routeSound();
 	});
 
@@ -45,13 +43,10 @@ function setup() {
 	rateSlider.position(50, 25);
 	ampSlider = createSlider(0, 2, 0.5, 0);
 	ampSlider.position(235, 5);
-
 	reverbDryWetSlider = createSlider(0, 1, 0, 0);
 	reverbDryWetSlider.position(235, 25);
-
 	lpCutoffSlider = createSlider(30, 10000, 10000, 0);
 	lpCutoffSlider.position(235, 45);
-
 	delDryWetSlider = createSlider(0, 1, 0, 0);
 	delDryWetSlider.position(375, 5);
 	delTimeSlider = createSlider(0.1, 10, 1, 0);
@@ -71,7 +66,9 @@ function setup() {
 	lpFilter.freq(20000);
 	lpFilter.res(0);
 
+	soundFormats('wav')
 	sample = loadSound("samples/carriedAway.wav",
+		// sample = SoundFile("samples/carriedAway.wav",
 		sampleLoaded,
 		() => { background(color(255, 255, 255)); },
 		() => { background(color(0, 0, 0)); });
@@ -96,7 +93,7 @@ function sampleLoaded() {
 
 function buttonHandler() {
 	background(color(random(255), random(255), random(255)));
-	sample.jump(grainStart);
+	a = sample.jump(grainStart);
 }
 
 function draw() {
