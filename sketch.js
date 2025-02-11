@@ -11,8 +11,12 @@ let delTime, delTimePrev, delTimeSlider;
 let delDryWet, delDryWetPrev, delDryWetSlider;
 let delFeedback, delFeedbackPrev, delFeedbackSlider;
 
+function windowResized() {
+  setup();
+}
+
 function setup() {
-  let canvas = createCanvas(windowWidth, windowHeight);
+  const canvas = createCanvas(windowWidth, windowHeight);
   canvas.parent("dropZone");
 
   // File Upload
@@ -29,38 +33,41 @@ function setup() {
   });
 
   // Buttons
-  playButton = createButton("play");
-  playButton.mousePressed(buttonHandler);
-  playButton.position(190, 10);
-  killButton = createButton("Stop");
-  killButton.mousePressed(function () {
-    sample.stop();
+  playButton = createButton("Play");
+  playButton.position(160, 20);
+  playButton.mousePressed(() => {
+    background(color(random(255), random(255), random(255)));
+    sample.jump(grainStart);
   });
-  killButton.position(190, 38);
+
+  killButton = createButton("Stop");
+  killButton.position(160, 48);
+  killButton.mousePressed(() => sample.stop());
 
   // Sliders
   lengthSlider = createSlider(0, 5, 1, 0);
-  lengthSlider.position(50, 5);
+  lengthSlider.position(20, 15);
   rateSlider = createSlider(0.25, 2, 1, 0);
-  rateSlider.position(50, 25);
+  rateSlider.position(20, 35);
+  // ? startSlider is set after sample is loaded in sampleLoaded()
+
   ampSlider = createSlider(0, 2, 0.5, 0);
-  ampSlider.position(235, 5);
+  ampSlider.position(205, 15);
   reverbDryWetSlider = createSlider(0, 1, 0, 0);
-  reverbDryWetSlider.position(235, 25);
+  reverbDryWetSlider.position(205, 35);
   lpCutoffSlider = createSlider(30, 10000, 10000, 0);
-  lpCutoffSlider.position(235, 45);
+  lpCutoffSlider.position(205, 55);
+
   delDryWetSlider = createSlider(0, 1, 0, 0);
-  delDryWetSlider.position(375, 5);
-  delTimeSlider = createSlider(0.1, 10, 1, 0);
-  delTimeSlider.position(375, 25);
+  delDryWetSlider.position(345, 15);
+  delTimeSlider = createSlider(0, 1, 1, 0);
+  delTimeSlider.position(345, 35);
   delFeedbackSlider = createSlider(0, 0.9, 0.5, 0);
-  delFeedbackSlider.position(375, 45);
+  delFeedbackSlider.position(345, 55);
 
   // Effects, Filters, FFT
   fft = new p5.FFT();
-
   reverb = new p5.Reverb();
-
   delay = new p5.Delay();
   delay.setType("pingPong");
 
@@ -71,37 +78,12 @@ function setup() {
   soundFormats("wav");
   sample = loadSound(
     "samples/carriedAway.wav",
-    // sample = SoundFile("samples/carriedAway.wav",
     sampleLoaded,
-    () => {
-      background(color(255, 255, 255));
-    },
-    () => {
-      background(color(0, 0, 0));
-    }
+    () => background(color(255, 255, 255)),
+    () => background(color(0, 0, 0))
   );
 
   routeSound();
-}
-
-function routeSound() {
-  sample.disconnect();
-  sample.connect(lpFilter);
-  lpFilter.connect(delay);
-  delay.connect(reverb);
-}
-
-function sampleLoaded() {
-  if (startSlider != null) {
-    startSlider.remove();
-  }
-  startSlider = createSlider(0, sample.duration(), 0, 0);
-  startSlider.position(50, 45);
-}
-
-function buttonHandler() {
-  background(color(random(255), random(255), random(255)));
-  a = sample.jump(grainStart);
 }
 
 function draw() {
@@ -112,17 +94,40 @@ function draw() {
   sampleLooping();
 }
 
+function routeSound() {
+  sample.disconnect();
+  sample.connect(lpFilter);
+  lpFilter.connect(delay);
+  delay.connect(reverb);
+}
+
+function draw() {
+  drawVisuals();
+  pullData();
+  updateSample();
+  updateEffects();
+  sampleLooping();
+}
+
+function sampleLoaded() {
+  if (startSlider != null) {
+    startSlider.remove();
+  }
+  startSlider = createSlider(0, sample.duration(), 0, 0);
+  startSlider.position(20, 55);
+}
+
 function drawVisuals() {
   // fft
-  let waveForm = fft.waveform();
+  const waveForm = fft.waveform();
   randColor = color(random(255), random(255), random(255));
   stroke(randColor);
   fill(randColor);
   beginShape();
   vertex(0, height / 2);
   for (let i = 0; i < waveForm.length; i++) {
-    let x = map(i, 0, waveForm.length, 0, width);
-    let y = map(waveForm[i], -1, 1, 0, height);
+    const x = map(i, 0, waveForm.length, 0, width);
+    const y = map(waveForm[i], -1, 1, 0, height);
     vertex(x, y);
   }
   vertex(width, height / 2);
@@ -187,17 +192,18 @@ function sampleLooping() {
 }
 
 function startGrain() {
-  x = random(width);
-  y = random(height);
-  shapeSize = random(100, 200);
-  angle = random(360);
+  const x = random(width);
+  const y = random(height);
+  const shapeSize = random(100, 200);
+  const angle = random(360);
+  const shapeType = int(random(3));
 
   stroke(0, 0, 0);
   fill(random(255), random(255), random(255));
 
   translate(x, y);
   rotate(angle);
-  shapeType = int(random(3));
+
   switch (shapeType) {
     case 0:
       ellipse(0, 0, shapeSize);
